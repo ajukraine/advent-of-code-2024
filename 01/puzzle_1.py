@@ -2,20 +2,10 @@ from itertools import starmap
 
 
 def solve(filepath):
-  left = []
-  right = []
-
   with open(filepath, "r") as file:
-    for line in file:
-      a, b = [int(x) for x in line.split()]
+    left, right = zip(*(map(int, line.split()) for line in file))
 
-      left.append(a)
-      right.append(b)
-
-  left.sort()
-  right.sort()
-
-  return sum(starmap(lambda a, b: abs(a - b), zip(left, right)))
+  return sum(starmap(lambda a, b: abs(a - b), zip(sorted(left), sorted(right))))
 
 
 result = solve("input.txt")
