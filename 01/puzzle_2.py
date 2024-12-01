@@ -2,15 +2,8 @@ from collections import Counter
 
 
 def solve(filepath):
-  left = []
-  right = []
-
   with open(filepath, "r") as file:
-    for line in file:
-      a, b = [int(x) for x in line.split()]
-
-      left.append(a)
-      right.append(b)
+    left, right = zip(*(map(int, line.split()) for line in file))
 
   counter = Counter(right)
 
