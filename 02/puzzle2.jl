@@ -38,16 +38,12 @@ function is_safe_tolerate(report)
   return false
 end
 
-function solve()
-  return @pipe (
-    open("input.txt", "r")
-    |> readlines
-    |> map(line -> parse.(Int, split(line)), _)
-    |> filter(is_safe_tolerate, _)
-    |> length
-  )
-end
+solve(filename) = @pipe (
+  eachline(filename)
+  .|> split
+  .|> parse.(Int, _)
+  |> filter(is_safe_tolerate)
+  |> length
+)
 
-println(solve())
-
-# 10 12 8 4 2
+solve("input.txt") |> println
