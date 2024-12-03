@@ -1,3 +1,5 @@
+using Pipe: @pipe
+
 function is_safe(report)
   asc = nothing
   for (a, b) in zip(report[1:end-1], report[2:end])
@@ -23,20 +25,13 @@ end
 
 
 function solve()
-  num_of_safe_reports = 0
-
-  open("input.txt", "r") do file
-    for line in readlines(file)
-      parsed = parse.(Int, split(line))
-
-      if is_safe(parsed)
-        num_of_safe_reports += 1
-      end
-
-    end
-  end
-
-  return num_of_safe_reports
+  return @pipe (
+    open("input.txt", "r")
+    |> readlines
+    |> map(line -> parse.(Int, split(line)), _)
+    |> filter(report -> is_safe(report), _)
+    |> length
+  )
 end
 
 println(solve())
