@@ -24,15 +24,13 @@ function is_safe(report)
 end
 
 
-function solve()
-  return @pipe (
-    open("input.txt", "r")
-    |> readlines
-    |> map(line -> parse.(Int, split(line)), _)
-    |> filter(report -> is_safe(report), _)
-    |> length
-  )
-end
+solve(filename) = @pipe (
+  eachline(filename)
+  .|> split
+  .|> parse.(Int, _)
+  |> filter(is_safe)
+  |> length
+)
 
-println(solve())
+solve("input.txt") |> println
 
