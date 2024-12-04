@@ -11,8 +11,8 @@ calculate(matrix) = @pipe(
 )
 
 function eachdiag(matrix)
-  size = length(matrix)
-  @pipe(collect(-size:size) .|> diag(matrix, _))
+  rows, _ = size(matrix)
+  @pipe(collect(-rows+4:rows-4) .|> diag(matrix, _))
 end
 
 function solve(filename)
