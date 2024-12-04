@@ -11,7 +11,7 @@ function is_safe(report)
       return false
     end
 
-    if asc == nothing
+    if isnothing(asc)
       asc = increasing
       continue
     end
