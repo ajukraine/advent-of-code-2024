@@ -21,25 +21,15 @@ function is_correct_order(update, rules)
   return true
 end
 
-function less((x, y), rules)
-  if [x, y] in rules
-    return true
-  elseif [y, x] in rules
-    return false
-  end
-
-  return true
-end
-
 function solve(filename)
   rules, updates = parse_input(filename)
 
   is_correct(update) = is_correct_order(update, rules)
   middle(arr) = arr[cld(length(arr), 2)]
+  is_less(x, y) = [x, y] in rules || !([y, x] in rules)
+  fix_order(update) = sort(update, lt=is_less)
 
-  fix(update) = sort(update, lt=(x, y) -> less((x, y), rules))
-
-  updates |> filter(!is_correct) .|> fix .|> middle |> sum
+  updates |> filter(!is_correct) .|> fix_order .|> middle |> sum
 end
 
 solve("input.txt") |> println
