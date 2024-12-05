@@ -1,31 +1,20 @@
+using Pipe: @pipe
+
 function parse_input(filename)
-  rules = Set()
-  updates = []
+  lines = readlines(filename)
+  empty_line = findfirst(isempty, lines)
 
-  parse_rules = true
-  for line in readlines(filename)
-    if line == ""
-      parse_rules = false
-      continue
-    end
-    if parse_rules
-      push!(rules, (parse.(Int, split(line, "|"))...,))
-    else
-      push!(updates, parse.(Int, split(line, ",")))
-    end
-  end
+  rules = @pipe lines[begin:empty_line-1] .|> parse.(Int, split(_, "|"))
+  updates = @pipe lines[empty_line+1:end] .|> parse.(Int, split(_, ","))
 
-  (rules, updates)
+  rules, updates
 end
 
 function is_correct_order(update, rules)
   len = length(update)
-  for i in 1:len
-    for j in i+1:len
-      a, b = update[i], update[j]
-      if !((a, b) in rules)
-        return false
-      end
+  for i in 1:len, j in i+1:len
+    if !([update[i], update[j]] in rules)
+      return false
     end
   end
 
