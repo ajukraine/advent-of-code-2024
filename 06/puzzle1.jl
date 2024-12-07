@@ -3,12 +3,12 @@ using Match
 
 @enum Direction Up Right Down Left
 
-next(direction) = @match direction begin
-  $Up => CartesianIndex(-1, 0)
-  $Right => CartesianIndex(0, 1)
-  $Down => CartesianIndex(1, 0)
-  $Left => CartesianIndex(0, -1)
-end
+next(direction) = (@match direction begin
+  $Up => (-1, 0)
+  $Right => (0, 1)
+  $Down => (1, 0)
+  $Left => (0, -1)
+end) |> CartesianIndex
 
 turn(direction) = @match direction begin
   $Up => Right
