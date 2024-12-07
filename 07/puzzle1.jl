@@ -1,38 +1,28 @@
 using Pipe: @pipe
 
-function parse_input(filename)
-  @pipe (
-    readlines(filename)
-    .|> split(_, ':')
-    .|> ((left, right),) -> (parse(Int, left), parse.(Int, split(strip(right))))
-  )
-end
+parse_input(filename) = @pipe (
+  readlines(filename)
+  .|> split(_, ':')
+  .|> ((left, right),) -> (parse(Int, left), parse.(Int, split(strip(right))))
+)
 
-function is_equation((test, numbers))
-  len = length(numbers) - 1
-  combinations = Iterators.product(fill([*, +], len)...)
+is_equation((test, numbers), total=0) =
+  if total > test
+    false
+  elseif isempty(numbers)
+    test == total
+  else
+    num = numbers[1]
+    rest = @view numbers[2:end]
 
-  for ops in combinations
-    total = numbers[1]
-    for i in 1:len
-      total = ops[i](total, numbers[i+1])
-    end
-
-    if total == test
-      return true
-    end
+    is_equation((test, rest), total * num) || is_equation((test, rest), total + num)
   end
 
-  return false
-end
-
-function solve(filename)
-  @pipe(
-    parse_input(filename)
-    |> filter(is_equation)
-    .|> first
-    |> sum
-  )
-end
+solve(filename) = @pipe(
+  parse_input(filename)
+  |> filter(is_equation)
+  .|> first
+  |> sum
+)
 
 solve("input.txt") |> println
