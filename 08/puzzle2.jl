@@ -10,19 +10,16 @@ function get_antinodes((a, b), grid)
   d = gcd(dy, dx)
   step = CartesianIndex(dy ÷ d, dx ÷ d)
 
-  nodes = Set()
-
-  function fill_nodes(start, incr)
+  function get_nodes(start, diff)
+    nodes = Set()
     while checkbounds(Bool, grid, start)
       push!(nodes, start)
-      start += incr
+      start += diff
     end
+    nodes
   end
 
-  fill_nodes(a, step)
-  fill_nodes(a, -step)
-
-  nodes
+  union(get_nodes(a, -step), get_nodes(a, step))
 end
 
 function solve(filename)
