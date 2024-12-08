@@ -16,7 +16,7 @@ cd $day
 
 # Create input files
 touch "input.txt"
-touch "example.txt"
+touch "sample.txt"
 
 # Create Julia solution file
 cat > "puzzle1.jl" << EOL
