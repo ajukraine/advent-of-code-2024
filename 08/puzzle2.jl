@@ -7,7 +7,7 @@ parse_input(filename) = stack(readlines(filename), dims=1)
 function get_antinodes((a, b), grid)
   dy, dx = Tuple(a - b)
   d = gcd(dy, dx)
-  ch = CartesianIndex(dy ÷ d, dx ÷ d)
+  step = CartesianIndex(dy ÷ d, dx ÷ d)
 
   nodes = Set()
 
@@ -18,8 +18,8 @@ function get_antinodes((a, b), grid)
     end
   end
 
-  fill_nodes(a, ch)
-  fill_nodes(a, -ch)
+  fill_nodes(a, step)
+  fill_nodes(a, -step)
 
   nodes
 end
