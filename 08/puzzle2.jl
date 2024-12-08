@@ -1,4 +1,5 @@
 # Day 08: Advent of Code 2024
+_ = nothing # fix 'Missing reference: _' warnings
 
 using Query, Combinatorics
 

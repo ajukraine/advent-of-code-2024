@@ -21,6 +21,7 @@ touch "sample.txt"
 # Create Julia solution file
 cat > "puzzle1.jl" << EOL
 # Day $day: Advent of Code 2024
+_ = nothing # fix 'Missing reference: _' warnings
 
 function parse_input(filename)
 end
