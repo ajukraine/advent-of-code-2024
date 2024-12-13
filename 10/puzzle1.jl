@@ -6,36 +6,44 @@ using Curry
 
 parse_input(filename) = tryparse.(Int, string.(stack(collect.(readlines(filename)))))
 
-DIRECTIONS = [(-1, 0); (0, 1); (1, 0); (0, -1)] .|> CartesianIndex
-
-steps(pos, map) =
-  [(-1, 0); (0, 1); (1, 0); (0, -1)] .|>
-  CartesianIndex |>
+steps(map, pos) =
+  [(-1, 0); (0, 1); (1, 0); (0, -1)] |>
+  @map(CartesianIndex(_)) |>
   @map(pos + _) |>
-  @filter(checkbounds(Bool, map, _))
+  @filter(checkbounds(Bool, map, _)) |>
+  @filter(map[_] == map[pos] + 1) |>
+  collect
+
+function dfs(get_neighbors, explore, start)
+  q = [(start, 0)]
+  visited = Set([start])
+
+  function visit(pos, dist)
+    push!(q, (pos, dist))
+    push!(visited, pos)
+  end
+
+  while !isempty(q)
+    vertex, dist = popfirst!(q)
+
+    explore(vertex, dist)
+
+    for v in get_neighbors(vertex) |> filter(!in(visited))
+      visit(v, dist + 1)
+    end
+  end
+end
 
 function solve(filename)
-  parse
   map = parse_input(filename)
   trailheads = findall(isequal(0), map)
 
-  function score(pos, visited=Set())
-    push!(visited, pos)
+  heights_counter = Dict()
+  get_neighbors(pos) = steps(map, pos)
+  explore(pos, dist) = heights_counter[dist] = get(heights_counter, dist, 0) + 1
 
-    h = map[pos]
-
-    if h == 9
-      return 1
-    end
-
-    steps(pos, map) |>
-    @filter(!in(_, visited)) |>
-    @filter(map[_] == h + 1) |>
-    @map(score(_, visited)) |>
-    x -> sum(x, init=0)
-  end
-
-  score.(trailheads) |> sum
+  dfs.(get_neighbors, explore, trailheads)
+  heights_counter[9]
 end
 
 solve("input.txt") |> println
