@@ -2,17 +2,17 @@
 _ = nothing # fix 'Missing reference: _' warnings
 
 using Query
+using Curry
 
 parse_input(filename) = tryparse.(Int, string.(stack(collect.(readlines(filename)))))
 
 DIRECTIONS = [(-1, 0); (0, 1); (1, 0); (0, -1)] .|> CartesianIndex
 
 steps(pos, map) =
-  DIRECTIONS |> @map(pos + _) |> @filter(checkbounds(Bool, map, _))
-
-
-
-# trail(pos, map)
+  [(-1, 0); (0, 1); (1, 0); (0, -1)] .|>
+  CartesianIndex |>
+  @map(pos + _) |>
+  @filter(checkbounds(Bool, map, _))
 
 function solve(filename)
   parse
@@ -28,12 +28,11 @@ function solve(filename)
       return 1
     end
 
-    s = 0
-    for step in (steps(pos, map) |> @filter(!in(_, visited)) |> @filter(map[_] == h + 1))
-      s += score(step, visited)
-    end
-
-    s
+    steps(pos, map) |>
+    @filter(!in(_, visited)) |>
+    @filter(map[_] == h + 1) |>
+    @map(score(_, visited)) |>
+    x -> sum(x, init=0)
   end
 
   score.(trailheads) |> sum
