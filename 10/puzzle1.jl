@@ -14,7 +14,7 @@ steps(map, pos) =
   @filter(map[_] == map[pos] + 1) |>
   collect
 
-function dfs(get_neighbors, explore, start)
+function bfs(get_neighbors, explore, start)
   q = [(start, 0)]
   visited = Set([start])
 
@@ -41,8 +41,9 @@ function solve(filename)
   heights_counter = Dict()
   get_neighbors(pos) = steps(map, pos)
   explore(pos, dist) = heights_counter[dist] = get(heights_counter, dist, 0) + 1
+  score(trailhead) = bfs(get_neighbors, explore, trailhead)
 
-  dfs.(get_neighbors, explore, trailheads)
+  score.(trailheads)
   heights_counter[9]
 end
 
