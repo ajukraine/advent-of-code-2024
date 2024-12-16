@@ -38,69 +38,39 @@ function bfs(explore, grid, start)
   end
 end
 
-function get_sides(grid, regions)
+function get_sides(grid, region)
   num_rows, num_cols = size(grid)
-  num_regions = length(regions)
-
-  sides = fill(0, num_regions)
 
   get_plot(grid, pos) = checkbounds(Bool, grid, pos) ? grid[pos] : nothing
 
-  for (k, region) in enumerate(regions)
+  function get_dir_sides(dir)
+    sides = 0
+    is_horizontal = dir[1] == 0
+    I, J = is_horizontal ? (num_cols, num_rows) : (num_rows, num_cols)
+    for i in 1:I
+      len = 0
+      for j in 1:J+1
+        pos = (is_horizontal ? (j, i) : (i, j)) |> CartesianIndex
 
-    function calc(pos, dir, len)
-      next_pos = pos + dir
-      if in(pos, region) && get_plot(grid, next_pos) != grid[pos]
-        len += 1
-      elseif len != 0
-        sides[k] += 1
-        len = 0
-      end
-      len
-    end
-
-    for i in 1:num_rows
-      up = down = 0
-      for j in 1:num_cols
-        pos = CartesianIndex(i, j)
-
-        up = calc(pos, CartesianIndex(-1, 0), up)
-        down = calc(pos, CartesianIndex(1, 0), down)
-      end
-      if up != 0
-        sides[k] +=1
-      end
-      if down != 0
-        sides[k] += 1
+        if in(pos, region) && get_plot(grid, pos + dir) != grid[pos]
+          len += 1
+        elseif len != 0
+          sides += 1
+          len = 0
+        end
       end
     end
-
-    for j in 1:num_cols
-      left = right = 0
-      for i in 1:num_rows
-        pos = CartesianIndex(i, j)
-
-        right = calc(pos, CartesianIndex(0, 1), right)
-        left = calc(pos, CartesianIndex(0, -1), left)
-      end
-      if left != 0
-        sides[k] +=1
-      end
-      if right != 0
-        sides[k] += 1
-      end
-    end
+    sides
   end
 
-  sides
+  DIRECTIONS .|> get_dir_sides |> sum
 end
 
 function solve(filename)
   grid = parse_input(filename)
 
   unexplored = Set(CartesianIndices(grid))
-  regions = []
-  areas = []
+  prices = []
 
   while !isempty(unexplored)
     plant_pos = first(unexplored)
@@ -111,15 +81,10 @@ function solve(filename)
       delete!(unexplored, vertex)
     end
 
-    area = length(region)
-
-    push!(regions, region)
-    push!(areas, area)
+    push!(prices, length(region) * get_sides(grid, region))
   end
 
-  sides = get_sides(grid, regions)
-
-  dot(sides, areas)
+  sum(prices)
 end
 
 solve("input.txt") |> println
@@ -129,3 +94,4 @@ solve("input.txt") |> println
 @assert solve("sample2.txt") === 436
 @assert solve("sample4.txt") === 236
 @assert solve("sample5.txt") === 368
+@assert solve("input.txt") === 870202
