@@ -2,77 +2,71 @@
 _ = nothing # fix 'Missing reference: _' warnings
 
 using Query
+using LinearAlgebra
 
 parse_input(filename) = stack(readlines(filename), dims=1)
 
 const DIRECTIONS = [(-1, 0); (0, 1); (1, 0); (0, -1)] .|> CartesianIndex
 
-struct Graph
-  grid
-end
-
-get_neighbors(graph, vertex) =
+get_neighbors(grid, vertex) =
   DIRECTIONS |>
   @map(_ + vertex) |>
-  @filter(checkbounds(Bool, graph.grid, _)) |>
-  @filter(graph.grid[_] == graph.grid[vertex]) |>
+  @filter(checkbounds(Bool, grid, _)) |>
+  @filter(grid[_] == grid[vertex]) |>
   collect
 
-function bfs(explore, graph, start)
+function bfs(explore, grid, start)
   q = []
   visited = Set()
-  dist = 0
 
-  function visit(vertex, dist)
+  function visit(vertex, dist=0)
     push!(q, (vertex, dist))
     push!(visited, vertex)
   end
 
-  visit(start, dist)
+  visit(start)
 
   while !isempty(q)
     vertex, dist = popfirst!(q)
     explore(vertex, dist)
 
-    for v in get_neighbors(graph, vertex) |> filter(!in(visited))
-      visit(v, dist + 1)
+    for v in get_neighbors(grid, vertex)
+      if !in(v, visited)
+        visit(v, dist + 1)
+      end
     end
   end
-end
-
-function contains_region(outer, inner)
 end
 
 function solve(filename)
   grid = parse_input(filename)
-  graph = Graph(grid)
 
-  regions = Dict()
-  perimeters = Dict()
-  unmarked = Set(CartesianIndices(graph.grid))
+  areas = []
+  perimeters = []
+  unexplored = Set(CartesianIndices(grid))
 
-  while !isempty(unmarked)
-    plant_pos = first(unmarked)
-    num_of_adjacent_sides = 0
+  while !isempty(unexplored)
+    plant_pos = first(unexplored)
     region = Set()
 
-    bfs(graph, plant_pos) do vertex, dist
+    bfs(grid, plant_pos) do vertex, _
       push!(region, vertex)
-      delete!(unmarked, vertex)
-
-      num_of_adjacent_sides += length(get_neighbors(graph, vertex))
+      delete!(unexplored, vertex)
     end
 
-    regions[plant_pos] = region
-    perimeters[plant_pos] = length(regions[plant_pos]) * 4 - num_of_adjacent_sides
+    num_of_adjacent_sides = region |> @map(length(get_neighbors(grid, _))) |> sum
+    area = length(region)
+
+    push!(areas, area)
+    push!(perimeters, area * 4 - num_of_adjacent_sides)
   end
 
-  sum(perimeters[plant] * length(regions[plant]) for plant in keys(regions))
+  perimeters ⋅ areas
 end
 
 solve("input.txt") |> println
 
-# Test with sample
+# Test with samples
 @assert solve("sample1.txt") === 140
 @assert solve("sample2.txt") === 772
 @assert solve("sample3.txt") === 1930
