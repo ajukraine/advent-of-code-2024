@@ -41,8 +41,7 @@ end
 function solve(filename)
   grid = parse_input(filename)
 
-  areas = []
-  perimeters = []
+  prices = []
   unexplored = Set(CartesianIndices(grid))
 
   while !isempty(unexplored)
@@ -57,11 +56,10 @@ function solve(filename)
     num_of_adjacent_sides = region |> @map(length(get_neighbors(grid, _))) |> sum
     area = length(region)
 
-    push!(areas, area)
-    push!(perimeters, area * 4 - num_of_adjacent_sides)
+    push!(prices, area * (area * 4 - num_of_adjacent_sides))
   end
 
-  perimeters ⋅ areas
+  sum(prices)
 end
 
 solve("input.txt") |> println
