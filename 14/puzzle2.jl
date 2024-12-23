@@ -26,23 +26,13 @@ function solve(filename; seconds=nothing, w=nothing, h=nothing)
   for i in seconds:seconds+100000
     c = robots |> @map((mod(_.px + i * _.vx, w), mod(_.py + i * _.vy, h)))
 
-    cols = c |>
-           @groupby(_[2]) |>
-           @map({Key = key(_), Count = length(_)}) |>
-           @filter(_.Count > 22) |>
-           collect |>
-           length
-
-    rows = c |>
-           @groupby(_[1]) |>
-           @map({Key = key(_), Count = length(_)}) |>
-           @filter(_.Count > 10) |>
-           collect |>
-           length
+    rows = c |> @groupby(_[1]) |> @map(length(_)) |> @filter(_ > 10) |> collect |> length
+    cols = c |> @groupby(_[2]) |> @map(length(_)) |> @filter(_ > 22) |> collect |> length
 
     if cols > 3 && rows > 10
       println("Elapsed: $i")
       print_robots(c, w, h)
+      break
     end
 
   end
@@ -50,6 +40,3 @@ function solve(filename; seconds=nothing, w=nothing, h=nothing)
 end
 
 solve("input.txt", w=101, h=103, seconds=parse(Int, get(ARGS, 1, '0'))) .|> println
-
-# Test with sample
-# @assert solve("sample.txt") === nothing
