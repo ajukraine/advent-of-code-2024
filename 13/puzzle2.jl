@@ -12,7 +12,7 @@ end
 
 parse_line(pattern, line) = parse.(Int, match(pattern, line)) |> NamedTuple{(:x, :y)}
 
-fix_prize_location((x, y)) = (x = x + 10000000000000, y = y + 10000000000000)
+fix_prize_location((x, y)) = (x=x + 10000000000000, y=y + 10000000000000)
 
 parse_config(lines) = Config(
   parse_line(r"Button A: X\+(\d+), Y\+(\d+)", lines[1]),
@@ -32,7 +32,7 @@ function get_prize_combination((; a, b, prize))
   B = (prize.y * a.x - prize.x * a.y) / (b.y * a.x - b.x * a.y)
   A = (prize.x - B * b.x) / a.x
 
-  if B != ceil(B) || A != ceil(A)
+  if B != trunc(B) || A != trunc(A)
     return (0, 0)
   end
 
