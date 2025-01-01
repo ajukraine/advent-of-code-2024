@@ -39,6 +39,10 @@ puzzle_boilerplate() {
 # Day $day: Advent of Code 2024
 _ = nothing # fix 'Missing reference: _' warnings
 
+using Logging
+
+global_logger(ConsoleLogger(stderr, Logging.Debug))
+
 function parse_input(filename)
 end
 
