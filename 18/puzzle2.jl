@@ -37,13 +37,24 @@ end
 
 function solve(filename, size)
   bytes = parse_input(filename)
-  space = fill(SAFE, size)
 
   pos = CartesianIndex(1, 1)
   exit = CartesianIndex(size)
 
-  for (x, y) in bytes
-    space[y+1, x+1] = CORRUPTED
+  function corrupt(num)
+    space = fill(SAFE, size)
+    for (x, y) in bytes[begin:num]
+      space[y+1, x+1] = CORRUPTED
+    end
+    space
+  end
+
+  lo = 1
+  hi = length(bytes)
+
+  while hi > lo
+    mid = div((hi + lo), 2)
+    space = corrupt(mid)
 
     distances = fill(-1, size)
     function explore(vertex, dist)
@@ -53,9 +64,14 @@ function solve(filename, size)
     bfs(space, pos, explore)
 
     if distances[exit] == -1
-      return "$x,$y"
+      hi = mid
+    else
+      lo = mid + 1
     end
   end
+
+  x, y = bytes[hi]
+  "$x,$y"
 end
 
 solve("input.txt", (71, 71)) |> println
