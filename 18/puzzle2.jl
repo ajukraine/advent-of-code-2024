@@ -35,28 +35,30 @@ function bfs(graph, start, explore)
   end
 end
 
-function solve(filename, size, num)
+function solve(filename, size)
   bytes = parse_input(filename)
   space = fill(SAFE, size)
 
   pos = CartesianIndex(1, 1)
   exit = CartesianIndex(size)
 
-  for (x, y) in bytes[begin:num]
+  for (x, y) in bytes
     space[y+1, x+1] = CORRUPTED
+
+    distances = fill(-1, size)
+    function explore(vertex, dist)
+      distances[vertex] = isnothing(dist) ? 0 : dist + 1
+    end
+
+    bfs(space, pos, explore)
+
+    if distances[exit] == -1
+      return "$x,$y"
+    end
   end
-
-  distances = fill(-1, size)
-  function explore(vertex, dist)
-    distances[vertex] = isnothing(dist) ? 0 : dist + 1
-  end
-
-  bfs(space, pos, explore)
-
-  distances[exit]
 end
 
-solve("input.txt", (71, 71), 2^10) |> println
+solve("input.txt", (71, 71)) |> println
 
 # Test with sample
-@assert solve("sample.txt", (7, 7), 12) === 22
+@assert solve("sample.txt", (7, 7)) === "6,1"
